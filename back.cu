@@ -3,7 +3,7 @@
 **********************************************************************/
 
 /************************* BIBLIOTECAS *******************************/
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
@@ -23,12 +23,20 @@
 #define ESC             27
 
 #define MI              0.6
-#define TOLERANCIA	0.00001       // N�mero de erros consecutivos
+#define TOLERANCIA	0.00001            // N�mero de erros consecutivos
 
-double BETA = MI;                     // Fator de ajuste das correcoes
+double BETA = MI;                      // Fator de ajuste das correcoes
+
 
 /************************** CUDA FUNCTIONS **************************/
 
+# define BLOCK_SIZE = 1024;
+
+double Output[MAXNEU];
+double Input[MAXNEU];
+
+int num_blocks;
+int output_size;
 
 __global__ void cuda_reduce(double* input, double *output, int width) {
   int t = threadIdx.x;
@@ -57,7 +65,51 @@ __global__ void cuda_reduce(double* input, double *output, int width) {
   // se for a thread zero, ela armazena o resultado no bloco
   if(t == 0)
     output[blockIdx.x] = aux[0];  
-} 
+}
+
+void prepare_reduces() {
+  intputSize = MAXNEU * sizeof(double);
+
+  num_blocks = (width - 1) / BLOCK_SIZE + 1;
+  output_size = (num_blocks * sizeof(double));
+
+  cudaMalloc((void **) &Input, size);
+  cudaMalloc((void **) &Output, output_size);
+
+  dim3 dimGrid(num_blocks,1,1);
+  dim3 dimBlock(BLOCK_SIZE,1,1);
+}
+
+void finish_reduces() {
+  cudaFree(Input);
+  cudaFree(Output);
+}
+
+double reduce(double* Entrada, int Entrada_size) {
+  cudaMemcpy(Input, Entrada, Entrada_size, cudaMemcpyHostToDevice);
+
+  cuda_reduce<<<dimGrid,dimBlock>>>(Input, Output, MAXNEU);
+
+  double *aux = (double*) malloc (output_size);
+  cudaMemcpy(aux, Output, output_size, cudaMemcpyDeviceToHost);
+
+  for(int i = 1; i < num_blocks; i++) 
+    aux[0] += aux[i];
+
+  double sum = aux[0];
+
+  return sum;
+}
+
+/********************* CORREÇÕES DO CÓDIGO **************************/
+
+void randomize() {
+  srand(time(0));
+}
+
+int random(int max) {
+  return rand() % max;
+}
 
 /************************* CLASSES **********************************/
 /*********************** CLASSE NEURONIO ****************************/
@@ -115,40 +167,8 @@ double Neuronio :: Somatorio(double Entrada[])
   return Som;
   */
 
+  reduce(Entrada, MAXNEU);
   
-  int width = MAXNEU;
-  int size = width * sizeof(double);
-
-  int block_size = 1024;
-  int num_blocks = (width - 1) / block_size + 1;
-  int output_size = (num_blocks * sizeof(double));  
-
-  double *input = (double*) malloc (size);
-  double *output = (double*) malloc (output_size);
-
-  double *d_input, *d_output;
-
-  cudaMalloc((void **) &d_input, size);
-  cudaMemcpy(d_input, input, size, cudaMemcpyHostToDevice);
-
-  cudaMalloc((void **) &d_output, output_size);
-
-  dim3 dimGrid(num_blocks,1,1);
-  dim3 dimBlock(block_size,1,1);
-
-  cuda_reduce<<<dimGrid,dimBlock>>>(d_input, d_output, width);
-
-  cudaMemcpy(output, d_output, output_size, cudaMemcpyDeviceToHost);
-
-  for(int i = 1; i < num_blocks; i++) 
-    output[0] += output[i];
-
-  double sum = output[0];
-
-  cudaFree(d_input);
-  cudaFree(d_output);
-
-  return sum;
 }
 
 /*********************************************************
@@ -464,7 +484,7 @@ void Rede :: Treinar()
     {
       Dinamico = 0;
       gotoxy(1,10);
-      cout << "\n\nErro = " << Somatorio_Erro << "   ";
+      std::cout << "\n\nErro = " << Somatorio_Erro << "   ";
       Maior = Somatorio_Erro;
     }
     else
@@ -489,8 +509,8 @@ void Rede :: Treinar()
     if(Contador%10000 == 0)
     {
       gotoxy(1,10);
-      cout << "\nIteracoes = " << Contador;
-      cout << "\n\nBeta = " << BETA << "  ";
+      std::cout << "\nIteracoes = " << Contador;
+      std::cout << "\n\nBeta = " << BETA << "  ";
     }
 
     /* Op��o de escape */
@@ -501,7 +521,7 @@ void Rede :: Treinar()
 }
 
 /****************** PROGRAMA PRINCIPAL *****************************/
-void main(void)
+int main(void)
 {
   int Numero_Camadas;                 // N�mero de camadas da rede
   int Numero_Linhas;                  // N�mero de linhas de entrada
@@ -520,44 +540,47 @@ void main(void)
   Numero_Colunas_Entrada = NUMCOLENT;
   Numero_Colunas_Saida = NUMCOLSAI;
 
+  prepare_reduces(MAXNEU);
+
   while(Continua != 'n')
   {
     clrscr();
 
     if(Continua == 'r')
     {
-      cout << "\n\nDigite o numero de camadas: ";
-      cin >> Numero_Camadas;
+      std::cout << "\n\nDigite o numero de camadas: ";
+      std::cin >> Numero_Camadas;
 
       for(i=0; i < Numero_Camadas;i++)
       {
-        cout << "\n\nDigite o numero de neuronios da camada " << i << " : ";
-        cin >> Numero_Neuronio_Camada[i];
+        std::cout << "\n\nDigite o numero de neuronios da camada " << i << " : ";
+        std::cin >> Numero_Neuronio_Camada[i];
       }
 
       R.Inicializar_Rede(Numero_Camadas,Numero_Linhas,Numero_Colunas_Entrada,Numero_Colunas_Saida,Numero_Neuronio_Camada);
       R.Treinar();
     }
 
-    cout << "\n\nDigite as entradas da rede:\n";
+    std::cout << "\n\nDigite as entradas da rede:\n";
 
     for(i=0; i < Numero_Colunas_Entrada;i++)
     {
-      cout << "\nEntrada " << i << " : ";
-      cin >> Entrada[i];
+      std::cout << "\nEntrada " << i << " : ";
+      std::cin >> Entrada[i];
     }
 
     R.Calcular_Resultado(Entrada,Saida);
 
     for(i=1; i <= Numero_Colunas_Saida;i++)
     {
-      cout << "\nSaida " << i << " : " << Saida[i];
+      std::cout << "\nSaida " << i << " : " << Saida[i];
     }
 
-    cout << "\n\nContinua ? (s/n/r)";
-    cin >> Continua;
+    std::cout << "\n\nContinua ? (s/n/r)";
+    std::cin >> Continua;
   }
+
+  finish_reduces();
+
+  return 0;
 }
-
-
-

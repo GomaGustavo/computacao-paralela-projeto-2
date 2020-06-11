@@ -3,47 +3,55 @@
 **********************************************************************/
 
 /************************* BIBLIOTECAS *******************************/
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
 #include <conio.h>
 #include <math.h>
 
 /************************* DEFINICOES ********************************/
-#define MAXCAM          5              // Número máximo de camadas
-#define MAXNEU          100            // Número máximo de neurônios
-#define MAXPES          100            // Número máximo de pesos
-#define MAXLIN          100            // Número máximo de linhas
-#define MAXCOL          20             // Número máximo de colunas
+#define MAXCAM          5              // Nï¿½mero mï¿½ximo de camadas
+#define MAXNEU          100            // Nï¿½mero mï¿½ximo de neurï¿½nios
+#define MAXPES          100            // Nï¿½mero mï¿½ximo de pesos
+#define MAXLIN          100            // Nï¿½mero mï¿½ximo de linhas
+#define MAXCOL          20             // Nï¿½mero mï¿½ximo de colunas
 
-#define NUMLIN          26             // Número de Linhas da Matriz de Entrada
-#define NUMCOLENT       8              // Número de Colunas da Matriz de Entrada
-#define NUMCOLSAI       5              // Número de Colunas de Saida
+#define NUMLIN          26             // Nï¿½mero de Linhas da Matriz de Entrada
+#define NUMCOLENT       8              // Nï¿½mero de Colunas da Matriz de Entrada
+#define NUMCOLSAI       5              // Nï¿½mero de Colunas de Saida
 #define NUMITE          1              // Numero de Iteracoes
 #define ESC             27
 
 #define MI              0.6
-#define TOLERANCIA	0.00001       // Número de erros consecutivos
+#define TOLERANCIA	0.00001       // Nï¿½mero de erros consecutivos
 
 double BETA = MI;                     // Fator de ajuste das correcoes
+
+void randomize() {
+  srand(time(0));
+}
+
+int random(int max) {
+  return rand() % max;
+}
 
 /************************* CLASSES **********************************/
 /*********************** CLASSE NEURONIO ****************************/
 class Neuronio
 {
   private:
-    int Numero_Pesos;                   // Número de pesos do neurônio
+    int Numero_Pesos;                   // Nï¿½mero de pesos do neurï¿½nio
     double W[MAXPES];                   // Vetor de pesos
 
   public:
     void Inicializar_Neuronio(int Numero_Pesos);     // Inicia os valores dos pesos
     void Ajustar_Peso(double Entrada, double Erro, int Indice_Peso);   // Ajusta os valores dos pesos
-    double Somatorio(double Entrada[]);             // Retorna os pesos e quantos são
+    double Somatorio(double Entrada[]);             // Retorna os pesos e quantos sï¿½o
     double Erro_Peso(double Erro,int Indice_Peso);
 };
 
 /*********************************************************
-  Inicializa o Número de Pesos e também os valores
+  Inicializa o Nï¿½mero de Pesos e tambï¿½m os valores
   iniciais dos pesos
 *********************************************************/
 void Neuronio :: Inicializar_Neuronio(int Numero_Pesos)
@@ -59,7 +67,7 @@ void Neuronio :: Inicializar_Neuronio(int Numero_Pesos)
 }
 
 /*********************************************************
-  Multilica o Erro da saída de um neurônio por um Peso de
+  Multilica o Erro da saï¿½da de um neurï¿½nio por um Peso de
   Indice_Peso
 *********************************************************/
 double Neuronio :: Erro_Peso(double Erro, int Indice_Peso)
@@ -68,7 +76,7 @@ double Neuronio :: Erro_Peso(double Erro, int Indice_Peso)
 }
 
 /*********************************************************
-  Dada uma entrada, retorna a saída do neurônio
+  Dada uma entrada, retorna a saï¿½da do neurï¿½nio
   multiplicando-a pelos pesos
 *********************************************************/
 double Neuronio :: Somatorio(double Entrada[])
@@ -83,7 +91,7 @@ double Neuronio :: Somatorio(double Entrada[])
 }
 
 /*********************************************************
-  Dado o erro da camada da frente, a saída do neurônio,
+  Dado o erro da camada da frente, a saï¿½da do neurï¿½nio,
   e Indice do Peso, calcula-se o novo peso
 *********************************************************/
 void Neuronio :: Ajustar_Peso(double Entrada, double Erro, int Indice_Peso)
@@ -95,16 +103,16 @@ void Neuronio :: Ajustar_Peso(double Entrada, double Erro, int Indice_Peso)
 class Camada
 {
   private:
-    int Numero_Neuronios;               // Número de neurônios na camada
+    int Numero_Neuronios;               // Nï¿½mero de neurï¿½nios na camada
     int Numero_Pesos;
-    double Saida[MAXNEU];               // Saída dos neurônios da camada
-    Neuronio N[MAXNEU];                 // Neurônios da camada
+    double Saida[MAXNEU];               // Saï¿½da dos neurï¿½nios da camada
+    Neuronio N[MAXNEU];                 // Neurï¿½nios da camada
 
   public:
-    void Inicializar_Camada(int Numero_Neuronios, int Numero_Pesos);  // Atribui o número de neurônios
-    void Treinar_Neuronios(double Entrada[]);                           // Treina os neurônios com uma entrada
-    void Funcao_Ativacao();                                           // Joga saída linear na funcao de ativacao
-    void Retornar_Saida(double Linha[]);                              // Retorna a saída dos neurônios
+    void Inicializar_Camada(int Numero_Neuronios, int Numero_Pesos);  // Atribui o nï¿½mero de neurï¿½nios
+    void Treinar_Neuronios(double Entrada[]);                           // Treina os neurï¿½nios com uma entrada
+    void Funcao_Ativacao();                                           // Joga saï¿½da linear na funcao de ativacao
+    void Retornar_Saida(double Linha[]);                              // Retorna a saï¿½da dos neurï¿½nios
     void Ajustar_Pesos_Neuronios(double Erros[], double Entrada[]);
     void Calcular_Erro_Camada_Saida(double Erros[], double Y[]);
     void Calcular_Erro_Camada(double Erros[]);
@@ -114,7 +122,7 @@ class Camada
 
 /*********************************************************
   Inicializa o Numero de Neuronios e o Numero de Pesos
-  e invoca a inicialização dos neurônios
+  e invoca a inicializaï¿½ï¿½o dos neurï¿½nios
 *********************************************************/
 void Camada :: Inicializar_Camada(int Numero_Neuronios, int Numero_Pesos)
 {
@@ -128,7 +136,7 @@ void Camada :: Inicializar_Camada(int Numero_Neuronios, int Numero_Pesos)
 }
 
 /*********************************************************
-  Calcula os erros da camada de saída com base na saída
+  Calcula os erros da camada de saï¿½da com base na saï¿½da
   desejada Y, retornando os erros
 *********************************************************/
 void Camada :: Calcular_Erro_Final(double Erros[], double Y[])
@@ -140,8 +148,8 @@ void Camada :: Calcular_Erro_Final(double Erros[], double Y[])
 }
 
 /*********************************************************
-  Dispara o somatório de um neurônio para uma certa entrada
-  armazenando a sua saída
+  Dispara o somatï¿½rio de um neurï¿½nio para uma certa entrada
+  armazenando a sua saï¿½da
 *********************************************************/
 void Camada :: Treinar_Neuronios(double Entrada[])
 {
@@ -152,7 +160,7 @@ void Camada :: Treinar_Neuronios(double Entrada[])
 }
 
 /*********************************************************
-  Calcula os erros da camada de saída com base na saída
+  Calcula os erros da camada de saï¿½da com base na saï¿½da
   desejada Y, retornando os erros
 *********************************************************/
 void Camada :: Calcular_Erro_Camada_Saida(double Erros[], double Y[])
@@ -176,16 +184,16 @@ void Camada :: Calcular_Erro_Camada(double Erros[])
 }
 
 /*********************************************************
-  Ajusta os pesos dos neurônios da camada de acordo com os
-  erros da camada da frente, e retorna o somárório de erros
-  da própria camada
+  Ajusta os pesos dos neurï¿½nios da camada de acordo com os
+  erros da camada da frente, e retorna o somï¿½rï¿½rio de erros
+  da prï¿½pria camada
 *********************************************************/
 void Camada :: Ajustar_Pesos_Neuronios(double Erros[], double Entrada[])
 {
   int i,j;
   double Temp, Erro_Aux[MAXNEU];
 
-  /* Cálculo do Somatório que será usado para o cálculo do erro
+  /* Cï¿½lculo do Somatï¿½rio que serï¿½ usado para o cï¿½lculo do erro
      da camada anterior */
 
   for(i=1;i < Numero_Pesos;i++)
@@ -198,23 +206,23 @@ void Camada :: Ajustar_Pesos_Neuronios(double Erros[], double Entrada[])
     Erro_Aux[i-1] = Temp;
   }
 
-  /* Ajusta os pesos de cada neurônio  de acordo com o erro
-     da camada da frente e a saída da própria camada */
+  /* Ajusta os pesos de cada neurï¿½nio  de acordo com o erro
+     da camada da frente e a saï¿½da da prï¿½pria camada */
 
   for(i=0;i < Numero_Neuronios;i++)
     for(j=0;j < Numero_Pesos;j++)
       N[i].Ajustar_Peso(Entrada[j],Erros[i],j);
 
   /* Atribui o vetor de erros calculado, para o vetor erro
-     que será retornado */
+     que serï¿½ retornado */
 
   for(i=0;i < (Numero_Pesos -1);i++)
     Erros[i] = Erro_Aux[i];
 }
 
 /*********************************************************
-  Atualiza a saída da camada passando-a por uma função
-  de ativação
+  Atualiza a saï¿½da da camada passando-a por uma funï¿½ï¿½o
+  de ativaï¿½ï¿½o
 *********************************************************/
 void Camada :: Funcao_Ativacao()
 {
@@ -225,7 +233,7 @@ void Camada :: Funcao_Ativacao()
 }
 
 /*********************************************************
-  Retorna a Saída da Camada
+  Retorna a Saï¿½da da Camada
 *********************************************************/
 void Camada :: Retornar_Saida(double Linha[])
 {
@@ -240,24 +248,24 @@ void Camada :: Retornar_Saida(double Linha[])
 class Rede
 {
   private:
-    int Numero_Camadas;                 // Número de camadas da rede
-    int Numero_Linhas;                  // Número de linhas de entrada
-    int Numero_Colunas_Entrada;         // Número de colunas de entrada
-    int Numero_Colunas_Saida;           // Número de colunas da saída
+    int Numero_Camadas;                 // Nï¿½mero de camadas da rede
+    int Numero_Linhas;                  // Nï¿½mero de linhas de entrada
+    int Numero_Colunas_Entrada;         // Nï¿½mero de colunas de entrada
+    int Numero_Colunas_Saida;           // Nï¿½mero de colunas da saï¿½da
 
     Camada C[MAXCAM];                   // Camadas da rede
     double X[MAXLIN][MAXCOL];           // Matriz de entrada da rede
-    double Y[MAXLIN][MAXCOL];           // Matriz de saída da rede
+    double Y[MAXLIN][MAXCOL];           // Matriz de saï¿½da da rede
 
   public:
-    void Inicializar_Rede(int,int,int,int, int Numero_Neuronio_Camada[]);  // Inicializa os valores das variáveis
+    void Inicializar_Rede(int,int,int,int, int Numero_Neuronio_Camada[]);  // Inicializa os valores das variï¿½veis
     void Treinar();                          // Treina toda a rede
     void Calcular_Resultado(double Entrada[], double Saida[]);
 };
 
 /*********************************************************
-  Inicializa todas as variáveis da rede, inclusive a
-  leitura das entradas e saídas da rede
+  Inicializa todas as variï¿½veis da rede, inclusive a
+  leitura das entradas e saï¿½das da rede
 *********************************************************/
 void Rede :: Inicializar_Rede(int Numero_Camadas, int Numero_Linhas,
              int Numero_Colunas_Entrada, int Numero_Colunas_Saida, int Numero_Neuronio_Camada[])
@@ -292,7 +300,7 @@ void Rede :: Inicializar_Rede(int Numero_Camadas, int Numero_Linhas,
 
 /*********************************************************
   Calcula a resposta da rede para uma certa entrada,
-  retornando a saída
+  retornando a saï¿½da
 *********************************************************/
 void Rede :: Calcular_Resultado(double Entrada[], double Saida[])
 {
@@ -319,7 +327,7 @@ void Rede :: Treinar()
   long Contador, Dinamico;
   char Sair;
 
-  /* Inicializando variáveis */
+  /* Inicializando variï¿½veis */
   for(i=0; i < MAXLIN; i++)
     Marcados[i] = 0;
 
@@ -364,12 +372,12 @@ void Rede :: Treinar()
     }
 
     // BACK-PROPAGATION
-    /* Ajustando pesos da camada de saída */
+    /* Ajustando pesos da camada de saï¿½da */
     C[Camada_Saida].Calcular_Erro_Camada_Saida(Erros,Y[Linha_Escolhida]);
     C[Camada_Saida -1].Retornar_Saida(Vetor_Saida);
     C[Camada_Saida].Ajustar_Pesos_Neuronios(Erros,Vetor_Saida);
 
-    /* Ajustando pesos das camadas intermediárias */
+    /* Ajustando pesos das camadas intermediï¿½rias */
     for (i=Camada_Saida - 1; i > 0; i--)
     {
       C[i].Calcular_Erro_Camada(Erros);
@@ -390,12 +398,12 @@ void Rede :: Treinar()
 
     Somatorio_Erro /= 2;
 
-    /* Verificando condições */
+    /* Verificando condiï¿½ï¿½es */
     if( Somatorio_Erro < Maior)
     {
       Dinamico = 0;
       gotoxy(1,10);
-      cout << "\n\nErro = " << Somatorio_Erro << "   ";
+      std::cout << "\n\nErro = " << Somatorio_Erro << "   ";
       Maior = Somatorio_Erro;
     }
     else
@@ -406,7 +414,7 @@ void Rede :: Treinar()
     else
       Iteracoes = 0;
 
-    /* Beta dinâmico */
+    /* Beta dinï¿½mico */
     if(Dinamico == 200000)
     {
       Dinamico = 0;
@@ -416,15 +424,15 @@ void Rede :: Treinar()
     if(Dinamico == 50000)
       BETA = MI;
 
-    /* Exibição na tela */
+    /* Exibiï¿½ï¿½o na tela */
     if(Contador%10000 == 0)
     {
       gotoxy(1,10);
-      cout << "\nIteracoes = " << Contador;
-      cout << "\n\nBeta = " << BETA << "  ";
+      std::cout << "\nIteracoes = " << Contador;
+      std::cout << "\n\nBeta = " << BETA << "  ";
     }
 
-    /* Opção de escape */
+    /* Opï¿½ï¿½o de escape */
 //    if(Contador%10000000 == 0)
 //      Sair = (char)getch();
 
@@ -432,12 +440,12 @@ void Rede :: Treinar()
 }
 
 /****************** PROGRAMA PRINCIPAL *****************************/
-void main(void)
+int main(void)
 {
-  int Numero_Camadas;                 // Número de camadas da rede
-  int Numero_Linhas;                  // Número de linhas de entrada
-  int Numero_Colunas_Entrada;         // Número de colunas de entrada
-  int Numero_Colunas_Saida;           // Número de colunas da saída
+  int Numero_Camadas;                 // Nï¿½mero de camadas da rede
+  int Numero_Linhas;                  // Nï¿½mero de linhas de entrada
+  int Numero_Colunas_Entrada;         // Nï¿½mero de colunas de entrada
+  int Numero_Colunas_Saida;           // Nï¿½mero de colunas da saï¿½da
   int Numero_Neuronio_Camada[MAXCAM];
   int i;
 
@@ -457,38 +465,37 @@ void main(void)
 
     if(Continua == 'r')
     {
-      cout << "\n\nDigite o numero de camadas: ";
-      cin >> Numero_Camadas;
+      std::cout << "\n\nDigite o numero de camadas: ";
+      std::cin >> Numero_Camadas;
 
       for(i=0; i < Numero_Camadas;i++)
       {
-        cout << "\n\nDigite o numero de neuronios da camada " << i << " : ";
-        cin >> Numero_Neuronio_Camada[i];
+        std::cout << "\n\nDigite o numero de neuronios da camada " << i << " : ";
+        std::cin >> Numero_Neuronio_Camada[i];
       }
 
       R.Inicializar_Rede(Numero_Camadas,Numero_Linhas,Numero_Colunas_Entrada,Numero_Colunas_Saida,Numero_Neuronio_Camada);
       R.Treinar();
     }
 
-    cout << "\n\nDigite as entradas da rede:\n";
+    std::cout << "\n\nDigite as entradas da rede:\n";
 
     for(i=0; i < Numero_Colunas_Entrada;i++)
     {
-      cout << "\nEntrada " << i << " : ";
-      cin >> Entrada[i];
+      std::cout << "\nEntrada " << i << " : ";
+      std::cin >> Entrada[i];
     }
 
     R.Calcular_Resultado(Entrada,Saida);
 
     for(i=1; i <= Numero_Colunas_Saida;i++)
     {
-      cout << "\nSaida " << i << " : " << Saida[i];
+      std::cout << "\nSaida " << i << " : " << Saida[i];
     }
 
-    cout << "\n\nContinua ? (s/n/r)";
-    cin >> Continua;
+    std::cout << "\n\nContinua ? (s/n/r)";
+    std::cin >> Continua;
   }
+
+  return 0;
 }
-
-
-
