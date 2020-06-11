@@ -6,7 +6,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <math.h>
 
 /************************* DEFINICOES ********************************/
@@ -33,6 +32,16 @@ void randomize() {
 
 int random(int max) {
   return rand() % max;
+}
+
+void gotoxy(int x, int y)
+{
+    printf("%c[%d;%df", 0x1B, y, x);
+}
+
+void clrscr(void)
+{
+    system("clear");
 }
 
 /************************* CLASSES **********************************/

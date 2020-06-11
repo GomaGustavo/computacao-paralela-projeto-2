@@ -6,7 +6,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
-#include <conio.h>
 #include <math.h>
 
 /************************* DEFINICOES ********************************/
@@ -24,13 +23,12 @@
 
 #define MI              0.6
 #define TOLERANCIA	0.00001            // N�mero de erros consecutivos
+#define BLOCK_SIZE      1024
 
 double BETA = MI;                      // Fator de ajuste das correcoes
 
 
 /************************** CUDA FUNCTIONS **************************/
-
-# define BLOCK_SIZE = 1024;
 
 double Output[MAXNEU];
 double Input[MAXNEU];
@@ -68,16 +66,13 @@ __global__ void cuda_reduce(double* input, double *output, int width) {
 }
 
 void prepare_reduces() {
-  intputSize = MAXNEU * sizeof(double);
+  int intputSize = MAXNEU * sizeof(double);
 
-  num_blocks = (width - 1) / BLOCK_SIZE + 1;
+  num_blocks = (MAXNEU - 1) / BLOCK_SIZE + 1;
   output_size = (num_blocks * sizeof(double));
 
-  cudaMalloc((void **) &Input, size);
+  cudaMalloc((void **) &Input, intputSize);
   cudaMalloc((void **) &Output, output_size);
-
-  dim3 dimGrid(num_blocks,1,1);
-  dim3 dimBlock(BLOCK_SIZE,1,1);
 }
 
 void finish_reduces() {
@@ -87,6 +82,9 @@ void finish_reduces() {
 
 double reduce(double* Entrada, int Entrada_size) {
   cudaMemcpy(Input, Entrada, Entrada_size, cudaMemcpyHostToDevice);
+
+  dim3 dimGrid(num_blocks,1,1);
+  dim3 dimBlock(BLOCK_SIZE,1,1);
 
   cuda_reduce<<<dimGrid,dimBlock>>>(Input, Output, MAXNEU);
 
@@ -109,6 +107,16 @@ void randomize() {
 
 int random(int max) {
   return rand() % max;
+}
+
+void gotoxy(int x, int y)
+{
+    printf("%c[%d;%df", 0x1B, y, x);
+}
+
+void clrscr(void)
+{
+    system("clear");
 }
 
 /************************* CLASSES **********************************/
@@ -167,7 +175,7 @@ double Neuronio :: Somatorio(double Entrada[])
   return Som;
   */
 
-  reduce(Entrada, MAXNEU);
+  return reduce(Entrada, MAXNEU);
   
 }
 
@@ -540,7 +548,7 @@ int main(void)
   Numero_Colunas_Entrada = NUMCOLENT;
   Numero_Colunas_Saida = NUMCOLSAI;
 
-  prepare_reduces(MAXNEU);
+  prepare_reduces();
 
   while(Continua != 'n')
   {
